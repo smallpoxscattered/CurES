@@ -1,70 +1,55 @@
 <div align="center">
 
-# DIBS - Dynamic Inference Budget Scheduling
-[![Paper](https://img.shields.io/badge/paper-A42C25?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2505.02391) [![Github](https://img.shields.io/badge/GVM-000000?style=for-the-badge&logo=github&logoColor=000&logoColor=white)](https://github.com/RLHFlow/GVM)
+# CurES - From Gradient Analysis to Efficient Curriculum Learning for Reasoning LLMs
+[![Paper](https://img.shields.io/badge/paper-A42C25?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/html/2510.01037v1) [![Github](https://img.shields.io/badge/GVM-000000?style=for-the-badge&logo=github&logoColor=000&logoColor=white)](https://github.com/ZexuSun/CurES)
 </div>
 
-## Table of Contents
-- [DIBS - Dynamic Inference Budget Scheduling](#dibs---dynamic-inference-budget-scheduling)
-  - [Table of Contents](#table-of-contents)
-  - [Introduction](#introduction)
-  - [Environment Setup](#environment-setup)
-  - [Experiments Running](#experiments-running)
-  - [Acknowledgement](#acknowledgement)
+## Catalog
+- [Introduction](#Introduction)
+- [Environment Setup](#environment-setup)
+- [Experiments Running](#experiments-running)
 
 ## Introduction
-Chain-of-thought (CoT) reasoning in large language models (LLMs) can be formalized as a latent variable problem, where the model needs to generate intermediate reasoning steps. While prior approaches such as iterative reward-ranked fine-tuning (RAFT) have relied on such formulations, they typically apply uniform inference budgets across prompts, which fails to account for variability in difficulty and convergence behavior. This work identifies the main bottleneck in CoT training as inefficient stochastic gradient estimation due to static sampling strategies. We propose GVM-RAFT, a prompt-specific Dynamic Sample Allocation Strategy designed to minimize stochastic gradient variance under a computational budget constraint. The method dynamically allocates computational resources by monitoring prompt acceptance rates and stochastic gradient norms, ensuring that the resulting gradient variance is minimized. Our theoretical analysis shows that the proposed dynamic sampling strategy leads to accelerated convergence guarantees under suitable conditions. Experiments on mathematical reasoning show that GVM-RAFT achieves a 2-4 $\times$ speedup and considerable accuracy improvements over vanilla RAFT. The proposed dynamic sampling strategy is general and can be incorporated into other reinforcement learning algorithms, such as GRPO, leading to similar improvements in convergence and test accuracy.
+
+Curriculum learning plays a crucial role in enhancing the training efficiency of large language models (LLMs) on reasoning tasks. However, existing methods often fail to adequately account for variations in prompt difficulty or rely on simplistic filtering mechanisms to select prompt datasets within a narrow criterion range, resulting in significant computational waste. In this work, we approach the problem from the perspective of reinforcement learning gradient optimization, offering a systematic and theoretical investigation into how to improve the training efficiency of LLMs. We identify two key factors influencing training efficiency: the selection of training prompts and the allocation of rollout quantities across different prompts. Our theoretical analysis reveals that the sampling distribution of prompts dictates the convergence rate of gradient descent, while the allocation of the rollout quantity influences the consistency and stability of overall gradient updates. Based on these insights, we propose CurES, an efficient training method that accelerates convergence and employs Bayesian posterior estimation to minimize computational overhead. Experiments demonstrate that our CurES outperforms Group Relative Policy Optimization (GRPO) by **+3.30** points and **+4.82** points with 1.5B and 7B models, respectively, and exceeds the best prior sample efficient methods by **+2.12** points on average across eight math reasoning benchmarks. Our CurES also improves convergence speed compare to baselines such as GRPO.
 
 <p align="center">
-  <img src="figures/main_fig.png" width="85%" />
-  <img src="figures/alg.png" width="85%">
-</p>
-
-**Main Takeaways**
-1. We revisit the EM framework and RAFT in the context of CoT reasoning, and identify that a major limitation of current approaches lies in inefficient stochastic gradient estimation caused by uniform and static sampling strategies (i.e., best-of-n sampling), which fail to account for prompt-specific difficulty and convergence behavior.
-2. Motivated by the goal of minimizing the variance of stochastic gradient, we propose a dynamic sampling strategy that adaptively allocates computational resources based on prompt hardness and gradient norms. Our approach provides both intuitive theoretical insight and rigorous convergence guarantees, establishing a principled framework for efficient on-policy sampling under computational budget constraints.
-3. We apply our method to both RAFT++ and GRPO algorithms with real-world experiments on mathematical reasoning tasks. Our results demonstrate that the proposed approach achieves 2-4 $\times$ speedup in convergence rate and also considerably improve the final test accuracy. 
-
-
-<p align="center">
-  <img src="figures/res.png" width="75%" />
-</p>
-
-
-<p align="center">
-  <img src="figures/res_fig.png" width="75%" />
+  <img src="figures/Curriculum.png" width="85%" />
+  <figcaption align="left"><b>Figure 1：</b>Illustration of our theoretical and practical contributions. The first part presents our theoretical analysis, which establishes the relationship between the gradient efficiency and models’ question-answering accuracy, denoted as $p_{\theta}(x)$. Building upon these insights, we develop CurES, a practical method that initially estimates $p_{\theta}(x)$ using a small rollout quantity, then reallocates prompt sampling probabilities and rollout quantities based on the estimated accuracy. In contrast to the unified framwork provided by our CurES, existing sample efficient methods fail to optimize from both prompt sampling and rollout quantity aspects. Speed-RL improves the prompt sampling procedure by eliminate the prompts with estimated accuracy of 0 or 1, and GVM propose to assign more rollout quantities to harder prompts.</figcaption>
+  <!-- <img src="figures/alg.png" width="85%"> -->
 </p>
 
 ## Environment Setup
 1. Create a new environment.
    ```bash
-   python -m venv ~/.python/gvm
-   source ~/.python/gvm/bin/activate
-   # You can also use conda 
-   #conda create -n gvm python==3.10
-   #conda activate gvm
+   conda create -n cures python==3.10
+   conda activate cures
    ```
+
 2. Install dependencies
    ```bash
    pip install pip --upgrade
    pip install uv
-   git clone https://github.com/RLHFlow/GVM.git
-   cd GVM/
+   git clone https://github.com/ZexuSun/CurES.git
+   cd CurES/
    python -m uv pip install -r requirements.txt
-   python -m uv pip install flash-attn==2.7.4.post1 --no-build-isolation
    ```
 
-## Experiments Running
-1. Prepare the training and test datasets.
-    ```bash
-    python runs/data_preprocess/math_dataset.py
-    python runs/data_preprocess/numina_process.py
-    ```
-2. Start the training loop.
+## Experiment Runnning
+
+1. Start the training loop.
    ```bash
-   bash runs/scripts/run_em.sh
-   bash runs/scripts/run_raft.sh
-   bash runs/scripts/run_grpo.sh
+   # Initialize Ray
+   ray start --head --dashboard-host=0.0.0.0
+   ray stop --force
+   # Login wandb
+   wandb login
+   # Use GRPO as advantage estimator.
+   # Modify run_cures_grpo.sh (e.g., wandb api key, model root, ckpts root, etc.) before running.
+   bash runs/scripts/run_cures_grpo.sh
+   # Use Reinforce++ as advantage estimator
+   # Modify run_cures_rpp.sh (e.g., wandb api key, model root, ckpts root, etc.) before running.
+   bash runs/scripts/run_cures_rpp.sh
    ```
 
 ## Acknowledgement
