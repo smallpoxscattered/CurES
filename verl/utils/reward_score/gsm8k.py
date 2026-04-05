@@ -15,8 +15,8 @@
 import re
 
 
-def extract_solution(solution_str, method="strict"):
-    assert method in ["strict", "flexible"]
+def extract_solution(solution_str, method="boxed"):
+    assert method in ["strict", "flexible", "boxed"]
 
     if method == "strict":
         # this also tests the formatting of the model
@@ -26,6 +26,13 @@ def extract_solution(solution_str, method="strict"):
         else:
             final_answer = solution.group(0)
             final_answer = final_answer.split("#### ")[1].replace(",", "").replace("$", "")
+    elif method == "boxed":
+        # Support \boxed{} format
+        solution = re.search(r"\\boxed\{(\-?[0-9\.\,]+)\}", solution_str)
+        if solution is None:
+            final_answer = None
+        else:
+            final_answer = solution.group(1).replace(",", "").replace("$", "")
     elif method == "flexible":
         answer = re.findall("(\\-?[0-9\\.\\,]+)", solution_str)
         final_answer = None
@@ -41,7 +48,7 @@ def extract_solution(solution_str, method="strict"):
     return final_answer
 
 
-def compute_score(solution_str, ground_truth, method="strict", format_score=0.0, score=1.0):
+def compute_score(solution_str, ground_truth, method="boxed", format_score=0.0, score=1.0, **kwargs):
     """The scoring function for GSM8k.
 
     Reference: Trung, Luong, et al. "Reft: Reasoning with reinforced fine-tuning." Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers). 2024.
@@ -52,8 +59,11 @@ def compute_score(solution_str, ground_truth, method="strict", format_score=0.0,
         method: the method to extract the solution, choices are 'strict' and 'flexible'
         format_score: the score for the format
         score: the score for the correct answer
+        **kwargs: additional keyword arguments (e.g., data_source, extra_info) passed by the training framework
     """
     answer = extract_solution(solution_str=solution_str, method=method)
+    with open("/root/working/CurES/reward_fn_info.txt", "a", encoding="utf-8") as f:
+        f.write(f"answer: {answer}\n")
     if answer is None:
         return 0
     else:

@@ -2,8 +2,8 @@ data:
   train_batch_size: 256
   micro_batch_size: null # will be deprecated, use micro_batch_size_per_gpu
   micro_batch_size_per_gpu: 4  # this is also val batch size
-  train_files: ~/data/gsm8k/train.parquet
-  val_files: ~/data/gsm8k/test.parquet
+  train_files: /root/autodl-tmp/CurES/data/gsm8k-instruct/train.parquet  # 对齐实际数据集路径
+  val_files: /root/autodl-tmp/CurES/data/gsm8k-instruct/test.parquet  # 对齐实际数据集路径
   # Single-turn settings
   prompt_key: question
   response_key: answer
@@ -13,7 +13,7 @@ data:
   multiturn:
     enable: false  # Set to true to use multi-turn dataset
     messages_key: messages  # Key for messages list in multi-turn mode
-  max_length: 1024
+  max_length: 2048  # 对齐 E2H 项目的 max_prompt_length + max_completion_length (1600 + 512)
   truncation: error
   balance_dp_token: False
   chat_template: null
@@ -21,18 +21,18 @@ data:
     path: null
     name: null
 model:
-  partial_pretrain: ~/models/gemma-1.1-7b-it
+  partial_pretrain: /root/autodl-tmp/CurES/model/Qwen2.5-1.5B-Instruct  # 对齐 E2H 项目模型路径
   fsdp_config:
     wrap_policy:
       min_num_params: 0
     cpu_offload: False
     offload_params: False
   external_lib: null
-  enable_gradient_checkpointing: False
-  trust_remote_code: False
-  lora_rank: 0  # Set to positive value to enable LoRA (e.g., 32)
-  lora_alpha: 16  # LoRA scaling factor
-  target_modules: all-linear  # Target modules for LoRA adaptation
+  enable_gradient_checkpointing: False  # 对齐 E2H 项目禁用梯度检查点
+  trust_remote_code: True  # 对齐 E2H 项目信任远程代码
+  lora_rank: 32  # 对齐 E2H 项目 LoRA r 值
+  lora_alpha: 64  # 对齐 E2H 项目 LoRA alpha 值
+  target_modules: ['q_proj', 'v_proj']  # 对齐 E2H 项目 LoRA 目标模块
   use_liger: False
 optim:
   lr: 1e-5
@@ -44,7 +44,7 @@ optim:
 ulysses_sequence_parallel_size: 1
 use_remove_padding: False
 trainer:
-  default_local_dir: /tmp/sft_model
+  default_local_dir: /root/autodl-tmp/CurES/checkpoint/sft_model  # 对齐 E2H 项目 checkpoint 路径
   default_hdfs_dir: hdfs://tmp/experiments/gsm8k/gemma-1.1-7b-it/ # change the hdfs path here
   resume_path: null
   project_name: gsm8k-sft

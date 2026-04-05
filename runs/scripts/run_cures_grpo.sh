@@ -56,8 +56,8 @@ for i in {1..1}; do # todo: 训练一次
     my_world_size=${#GPUS[@]}
     total_epochs=7 # todo: 因为 E2H 中 800 step ，而 7 x (7473 / 64) = 817.35 其中 7 为epoch，7473为数据集总条数，64为batchsize
     # todo 以下是对齐参数
-    # max_prompt_length: 512
-    # max_completion_length: 256 -> max_response_length
+    # max_prompt_length: 1600
+    # max_completion_length: 512 -> max_response_length
     # gradient_checkpointing: false
     # --gpu_memory_utilization 0.95 
     # cuda
@@ -66,8 +66,8 @@ for i in {1..1}; do # todo: 训练一次
         data.train_files="$train_files" \
         data.val_files="$test_files" \
         data.train_batch_size=$train_batch_size \
-        data.max_prompt_length=512 \
-        data.max_response_length=256 \
+        data.max_prompt_length=1600 \
+        data.max_response_length=512 \
         data.filter_overlong_prompts=True \
         +data.use_cures=True \
         +data.cures_difficulty_data="$difficulty_data" \
