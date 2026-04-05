@@ -6,18 +6,24 @@ correct_threshold=$5
 entropy_param=$6
 train_batch_size=$7
 output_dir=$8
+data_path=$9
 
 seed=42
-max_response_length=3072
-data_path=ScaleML-RLHF/numina_math_${iter_idx}
+max_response_length=256  # todo
 data_split="train"
 data_start=0
 data_end=999999999
-GPUS=(0 1 2 3 4 5 6 7)
+GPUS=(0 1) # todo
 world_size=${#GPUS[@]}
-system_prompt="qwen25-math-cot"
+system_prompt="qwen25-math-cot"  # todo
 
 mkdir -p $output_dir
+
+if [ -f "$output_dir/difficulty_rank_all.json" ]; then
+    echo "Initialization already done for $output_dir, skipping..."
+    exit 0
+fi
+
 export MASTER_ADDR=localhost
 export MASTER_PORT=50030
 export HF_ENDPOINT=https://hf-mirror.com
