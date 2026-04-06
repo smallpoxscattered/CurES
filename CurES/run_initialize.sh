@@ -13,7 +13,7 @@ max_response_length=256  # todo
 data_split="train"
 data_start=0
 data_end=999999999
-GPUS=(0 1) # todo
+GPUS=(0) # todo
 world_size=${#GPUS[@]}
 system_prompt="qwen25-math-cot"  # todo
 
