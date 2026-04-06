@@ -119,7 +119,7 @@ actor_rollout_ref:
       qkv_layer_name: qkv
       gate_proj_layer_name: gate_up
     # number of responses (i.e. num sample times)
-    n: 4  # 对齐 E2H 项目 num_generations
+    n: 1
     engine_kwargs: # inference engine parameters
       swap_space: null # null means "use the engine default value" (usually 4 GB), setting it to, e.g., 32 means 32 GB
     val_kwargs:

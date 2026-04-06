@@ -38,7 +38,7 @@ rollout:
   do_sample: True
   disable_log_stats: True
   enable_chunked_prefill: True
-  n: 4  # 对齐 E2H 项目 num_generations
+  n: 1
 actor:
   strategy: fsdp  # This is for backward-compatibility
   ulysses_sequence_parallel_size: 1 # sp size
