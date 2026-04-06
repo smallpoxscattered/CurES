@@ -28,7 +28,7 @@ model:
     cpu_offload: False
     offload_params: False
   external_lib: null
-  enable_gradient_checkpointing: False  # 对齐 E2H 项目禁用梯度检查点
+  enable_gradient_checkpointing: True
   trust_remote_code: True  # 对齐 E2H 项目信任远程代码
   lora_rank: 32  # 对齐 E2H 项目 LoRA r 值
   lora_alpha: 64  # 对齐 E2H 项目 LoRA alpha 值

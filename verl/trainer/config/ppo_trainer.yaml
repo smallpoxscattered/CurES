@@ -26,8 +26,8 @@ actor_rollout_ref:
     path: /root/autodl-tmp/CurES/model/Qwen2.5-1.5B-Instruct  # 对齐 E2H 项目模型
     external_lib: null
     override_config: { }
-    enable_gradient_checkpointing: False  # 对齐 E2H 项目禁用梯度检查点
-    use_remove_padding: True  # 对齐参考文件 run_cures_grpo.sh
+    enable_gradient_checkpointing: True
+    use_remove_padding: False
     use_liger: False
   actor:
     strategy: fsdp  # This is for backward-compatibility
@@ -66,13 +66,13 @@ actor_rollout_ref:
       wrap_policy:
         # transformer_layer_cls_to_wrap: None
         min_num_params: 0
-      param_offload: True  # 对齐参考文件 run_cures_grpo.sh
-      optimizer_offload: True  # 对齐参考文件 run_cures_grpo.sh
+      param_offload: False
+      optimizer_offload: False
       fsdp_size: -1
   ref:
     strategy: fsdp
     fsdp_config:
-      param_offload: True  # 对齐参考文件 run_cures_grpo.sh
+      param_offload: False
       wrap_policy:
         # transformer_layer_cls_to_wrap: None
         min_num_params: 0
@@ -136,7 +136,7 @@ critic:
     tokenizer_path: ${actor_rollout_ref.model.path}
     override_config: { }
     external_lib: ${actor_rollout_ref.model.external_lib}
-    enable_gradient_checkpointing: False  # 对齐 E2H 项目
+    enable_gradient_checkpointing: True
     use_remove_padding: False
     fsdp_config:
       param_offload: False

@@ -61,7 +61,7 @@ for i in {1..1}; do # todo: 训练一次
     # gradient_checkpointing: false
     # --gpu_memory_utilization 0.95 
     # cuda
-    CUDA_VISIBLE_DEVICES=0, 1 python3 -m CurES.main_cures \
+    CUDA_VISIBLE_DEVICES=0,1 python3 -m CurES.main_cures \
         algorithm.adv_estimator=$algorithm \
         data.train_files="$train_files" \
         data.val_files="$test_files" \
