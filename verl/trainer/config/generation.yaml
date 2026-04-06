@@ -1,6 +1,6 @@
 trainer:
   nnodes: 1
-  n_gpus_per_node: 2  # 对齐 E2H 项目 2 卡
+  n_gpus_per_node: 1
 
 data:
   path: /root/autodl-tmp/CurES/data/gsm8k-instruct/test.parquet  # 对齐实际数据集路径

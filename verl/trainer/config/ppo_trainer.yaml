@@ -211,7 +211,7 @@ trainer:
   rollout_data_dir: null # directory for logging the rollout data, no dump if null
   validation_data_dir: null # directory for logging the validation data, no dump if null
   nnodes: 1  # 对齐 E2H 项目
-  n_gpus_per_node: 2  # 对齐 E2H 项目 2 卡训练
+  n_gpus_per_node: 1
   save_freq: 5  # 对齐参考文件 run_cures_grpo.sh
   save_strategy: "no"  # 对齐 E2H 项目不保存 checkpoint
   # auto: find the last ckpt to resume. If can't find, start from scratch
